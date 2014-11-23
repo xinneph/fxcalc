@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="edit_balance" type="id"/>
+    <item name="edit_volume" type="id"/>
+    <item name="spinner_markets" type="id"/>
+    <item name="edit_pips" type="id"/>
+    <item name="text_percent" type="id"/>
+    <item name="text_profit_over_commission" type="id"/>
+</resources>

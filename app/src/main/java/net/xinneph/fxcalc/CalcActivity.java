@@ -1,7 +1,6 @@
 package net.xinneph.fxcalc;
 
 import android.app.Activity;
-import android.app.ActionBar;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,8 +8,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.Build;
-
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 
 public class CalcActivity extends Activity {
@@ -51,6 +51,10 @@ public class CalcActivity extends Activity {
      */
     public static class PlaceholderFragment extends Fragment {
 
+        EditText balanceEdit, volumeEdit, pipsEdit;
+        Spinner marketsSpinner;
+        TextView percentText, profitCommissionText;
+
         public PlaceholderFragment() {
         }
 
@@ -58,6 +62,17 @@ public class CalcActivity extends Activity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_calc, container, false);
+            balanceEdit = (EditText) rootView.findViewById(R.id.edit_balance);
+            volumeEdit = (EditText) rootView.findViewById(R.id.edit_volume);
+            pipsEdit = (EditText) rootView.findViewById(R.id.edit_pips);
+            marketsSpinner = (Spinner) rootView.findViewById(R.id.spinner_markets);
+            percentText = (TextView) rootView.findViewById(R.id.text_percent);
+            profitCommissionText = (TextView)
+                    rootView.findViewById(R.id.text_profit_over_commission);
+
+            balanceEdit.setText("243.73");
+            volumeEdit.setText("10");
+            pipsEdit.setText("4.0");
             return rootView;
         }
     }
