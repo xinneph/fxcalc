@@ -2,12 +2,14 @@ package net.xinneph.fxcalc;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -51,9 +53,10 @@ public class CalcActivity extends Activity {
      */
     public static class PlaceholderFragment extends Fragment {
 
-        EditText balanceEdit, volumeEdit, pipsEdit;
-        Spinner marketsSpinner;
-        TextView percentText, profitCommissionText;
+        private EditText balanceEdit, volumeEdit, pipsEdit;
+        private Spinner marketsSpinner;
+        private TextView percentText, profitCommissionText;
+        private ArrayAdapter<String> marketsSpinnerAdapter;
 
         public PlaceholderFragment() {
         }
@@ -73,6 +76,14 @@ public class CalcActivity extends Activity {
             balanceEdit.setText("243.73");
             volumeEdit.setText("10");
             pipsEdit.setText("4.0");
+
+            Resources r = getResources();
+            String[] markets = r.getStringArray(R.array.markets);
+            marketsSpinnerAdapter = new ArrayAdapter<String>(getActivity(),
+                    android.R.layout.simple_spinner_item, markets);
+            marketsSpinnerAdapter.setDropDownViewResource(
+                    android.R.layout.simple_spinner_dropdown_item);
+            marketsSpinner.setAdapter(marketsSpinnerAdapter);
             return rootView;
         }
     }
