@@ -15,4 +15,6 @@
         <item>NZDUSD</item>
         <item>GBPUSD</item>
     </string-array>
+
+    <string name="action_stooq">Stooq</string>
 </resources>
