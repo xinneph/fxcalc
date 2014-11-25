@@ -23,7 +23,7 @@ public class CalcActivity extends Activity {
         setContentView(R.layout.activity_calc);
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
+                    .add(R.id.container, new FragmentPercent())
                     .commit();
         }
     }
@@ -49,22 +49,22 @@ public class CalcActivity extends Activity {
     }
 
     /**
-     * A placeholder fragment containing a simple view.
+     * Fragment calculating percent out of pips.
      */
-    public static class PlaceholderFragment extends Fragment {
+    public static class FragmentPips extends Fragment {
 
         private EditText balanceEdit, volumeEdit, pipsEdit;
         private Spinner marketsSpinner;
         private TextView percentText, profitCommissionText;
         private ArrayAdapter<String> marketsSpinnerAdapter;
 
-        public PlaceholderFragment() {
+        public FragmentPips() {
         }
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_calc, container, false);
+            View rootView = inflater.inflate(R.layout.fragment_pips, container, false);
             balanceEdit = (EditText) rootView.findViewById(R.id.edit_balance);
             volumeEdit = (EditText) rootView.findViewById(R.id.edit_volume);
             pipsEdit = (EditText) rootView.findViewById(R.id.edit_pips);
@@ -84,6 +84,41 @@ public class CalcActivity extends Activity {
             marketsSpinnerAdapter.setDropDownViewResource(
                     android.R.layout.simple_spinner_dropdown_item);
             marketsSpinner.setAdapter(marketsSpinnerAdapter);
+            return rootView;
+        }
+    }
+
+    /**
+     * Fragment calculating pips out of percent.
+     */
+    public static class FragmentPercent extends Fragment {
+        private EditText balanceEdit, volumeEdit, percentEdit;
+        private Spinner marketsSpinner;
+        private TextView pipsText, profitCommissionText;
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.fragment_percent, container, false);
+            balanceEdit = (EditText) rootView.findViewById(R.id.edit_balance);
+            volumeEdit = (EditText) rootView.findViewById(R.id.edit_volume);
+            percentEdit = (EditText) rootView.findViewById(R.id.edit_percent);
+            marketsSpinner = (Spinner) rootView.findViewById(R.id.spinner_markets);
+            pipsText = (TextView) rootView.findViewById(R.id.text_pips);
+            profitCommissionText = (TextView)
+                    rootView.findViewById(R.id.text_profit_over_commission);
+
+            balanceEdit.setText("294.93");
+            volumeEdit.setText("3");
+            percentEdit.setText("8");
+
+            Resources r = getResources();
+            String[] markets = r.getStringArray(R.array.markets);
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
+                    android.R.layout.simple_spinner_item, markets);
+            adapter.setDropDownViewResource(
+                    android.R.layout.simple_spinner_dropdown_item);
+            marketsSpinner.setAdapter(adapter);
             return rootView;
         }
     }
