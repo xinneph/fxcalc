@@ -59,7 +59,8 @@ public class CalcActivity extends Activity {
             return true;
         }
         else if (id == R.id.action_stooq) {
-            new StooqTask().execute(fragment.getMarket());
+            String market = fragment.getMarket();
+            new StooqTask().execute(market);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -74,73 +75,97 @@ public class CalcActivity extends Activity {
         }
     }
 
+    private String[] parseContent(String content) {
+        return content.split(",");
+    }
+
+    private String[] marketPair(String market) {
+        String base = market.substring(0, 3);
+        String quote = market.substring(3, 6);
+        return new String[] {base, quote};
+    }
+
+    private String askFor(String market) {
+        URL url = getUrl(market);
+        try {
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setReadTimeout(3000);
+            conn.setConnectTimeout(4000);
+            conn.setRequestMethod("GET");
+            conn.setDoInput(true);
+            conn.connect();
+            InputStream stream = conn.getInputStream();
+            byte[] buffer = new byte[128];
+            stream.read(buffer);
+            String content = new String(buffer);
+            return content;
+        } catch (IOException e) {
+            Log.e(TAG, "Error when connecting for URL " + url, e);
+            return null;
+        }
+    }
+
     private class StooqTask extends AsyncTask<String,Void,String> {
         @Override
         protected String doInBackground(String... input) {
-            URL url = getUrl(input[0]);
-            try {
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setReadTimeout(3000);
-                conn.setConnectTimeout(4000);
-                conn.setRequestMethod("GET");
-                conn.setDoInput(true);
-                conn.connect();
-                InputStream stream = conn.getInputStream();
-                byte[] buffer = new byte[128];
-                stream.read(buffer);
-                String content = new String(buffer);
-                return content;
-            } catch (IOException e) {
-                Log.e(TAG, "Error when connecting for URL " + url, e);
-                return null;
-            }
+//            String content = askFor(input[0]);
+            String[] pair = marketPair(input[0]);
+            String contentBase = askFor(pair[0]+"PLN");
+            String contentQuote = askFor(pair[1]+"PLN");
+            return contentBase+"/"+contentQuote;
         };
 
         @Override
         protected void onPostExecute(String content) {
-            Toast.makeText(CalcActivity.this, content, Toast.LENGTH_LONG).show();
+            String[] bq = content.split("/");
+            String[] base = parseContent(bq[0]);
+            String[] quote = parseContent(bq[1]);
+            double b = Double.parseDouble(base[3]);
+            double q = Double.parseDouble(quote[3]);
+            fragment.calculate(b, q);
+//            Toast.makeText(CalcActivity.this, content, Toast.LENGTH_LONG).show();
         }
     }
 
     /**
      * Fragment calculating percent out of pips.
      */
-    public static class FragmentPips extends Fragment {
-
-        private EditText balanceEdit, volumeEdit, pipsEdit;
-        private Spinner marketsSpinner;
-        private TextView percentText, profitCommissionText;
-        private ArrayAdapter<String> marketsSpinnerAdapter;
-
-        public FragmentPips() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_pips, container, false);
-            balanceEdit = (EditText) rootView.findViewById(R.id.edit_balance);
-            volumeEdit = (EditText) rootView.findViewById(R.id.edit_volume);
-            pipsEdit = (EditText) rootView.findViewById(R.id.edit_pips);
-            marketsSpinner = (Spinner) rootView.findViewById(R.id.spinner_markets);
-            percentText = (TextView) rootView.findViewById(R.id.text_percent);
-            profitCommissionText = (TextView)
-                    rootView.findViewById(R.id.text_profit_over_commission);
-
-            balanceEdit.setText("243.73");
-            volumeEdit.setText("10");
-            pipsEdit.setText("4.0");
-
-            Resources r = getResources();
-            String[] markets = r.getStringArray(R.array.markets);
-            marketsSpinnerAdapter = new ArrayAdapter<String>(getActivity(),
-                    android.R.layout.simple_spinner_item, markets);
-            marketsSpinnerAdapter.setDropDownViewResource(
-                    android.R.layout.simple_spinner_dropdown_item);
-            marketsSpinner.setAdapter(marketsSpinnerAdapter);
-            return rootView;
-        }
-    }
+//    public static class FragmentPips extends Fragment {
+//
+//        private EditText balanceEdit, volumeEdit, pipsEdit;
+//        private Spinner marketsSpinner;
+//        private TextView percentText, profitCommissionText;
+//        private ArrayAdapter<String> marketsSpinnerAdapter;
+//
+//        public FragmentPips() {
+//        }
+//
+//        @Override
+//        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+//                Bundle savedInstanceState) {
+//            View rootView = inflater.inflate(R.layout.fragment_pips, container, false);
+//            balanceEdit = (EditText) rootView.findViewById(R.id.edit_balance);
+//            volumeEdit = (EditText) rootView.findViewById(R.id.edit_volume);
+//            pipsEdit = (EditText) rootView.findViewById(R.id.edit_pips);
+//            marketsSpinner = (Spinner) rootView.findViewById(R.id.spinner_markets);
+//            percentText = (TextView) rootView.findViewById(R.id.text_percent);
+//            profitCommissionText = (TextView)
+//                    rootView.findViewById(R.id.text_profit_over_commission);
+//
+//            balanceEdit.setText("243.73");
+//            volumeEdit.setText("10");
+//            pipsEdit.setText("4.0");
+//
+//            Resources r = getResources();
+//            String[] markets = r.getStringArray(R.array.markets);
+//            marketsSpinnerAdapter = new ArrayAdapter<String>(getActivity(),
+//                    android.R.layout.simple_spinner_item, markets);
+//            marketsSpinnerAdapter.setDropDownViewResource(
+//                    android.R.layout.simple_spinner_dropdown_item);
+//            marketsSpinner.setAdapter(marketsSpinnerAdapter);
+//            return rootView;
+//        }
+//    }
 
     /**
      * Fragment calculating pips out of percent.
@@ -148,7 +173,7 @@ public class CalcActivity extends Activity {
     public static class FragmentPercent extends Fragment {
         private EditText balanceEdit, volumeEdit, percentEdit;
         private Spinner marketsSpinner;
-        private TextView pipsText, profitCommissionText;
+        private TextView pipsText, commissionProfitText;
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -159,8 +184,8 @@ public class CalcActivity extends Activity {
             percentEdit = (EditText) rootView.findViewById(R.id.edit_percent);
             marketsSpinner = (Spinner) rootView.findViewById(R.id.spinner_markets);
             pipsText = (TextView) rootView.findViewById(R.id.text_pips);
-            profitCommissionText = (TextView)
-                    rootView.findViewById(R.id.text_profit_over_commission);
+            commissionProfitText = (TextView)
+                    rootView.findViewById(R.id.text_commission_over_profit);
 
             balanceEdit.setText("294.93");
             volumeEdit.setText("3");
@@ -178,6 +203,22 @@ public class CalcActivity extends Activity {
 
         public String getMarket() {
             return (String) marketsSpinner.getSelectedItem();
+        }
+
+        public void calculate(double base, double quote) {
+            String strBalance = balanceEdit.getText().toString();
+            double balance = Double.parseDouble(strBalance);
+            String strVolume = volumeEdit.getText().toString();
+            int volume = Integer.parseInt(strVolume);
+            String strPercent = percentEdit.getText().toString();
+            int percent = Integer.parseInt(strPercent);
+
+            double commission = volume * 1.3 * base;
+            double profit = percent * balance / 100.0;
+            double pips = (commission + profit)/(volume * quote);
+            double commissionProfit = commission / profit;
+            pipsText.setText(""+pips);
+            commissionProfitText.setText(""+commissionProfit);
         }
     }
 }

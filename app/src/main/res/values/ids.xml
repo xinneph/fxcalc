@@ -5,7 +5,7 @@
     <item name="spinner_markets" type="id"/>
     <item name="edit_pips" type="id"/>
     <item name="text_percent" type="id"/>
-    <item name="text_profit_over_commission" type="id"/>
+    <item name="text_commission_over_profit" type="id"/>
     <item name="text_pips" type="id"/>
     <item name="edit_percent" type="id"/>
 
