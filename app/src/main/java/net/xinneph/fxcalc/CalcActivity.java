@@ -152,10 +152,6 @@ public class CalcActivity extends Activity {
             commissionProfitText = (TextView)
                     rootView.findViewById(R.id.text_commission_over_profit);
 
-            balanceEdit.setText("294.93");
-            volumeEdit.setText("3");
-            percentEdit.setText("8");
-
             Resources r = getResources();
             String[] markets = r.getStringArray(R.array.markets);
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
@@ -186,13 +182,11 @@ public class CalcActivity extends Activity {
             for (String m: markets) {
                 if (m.equals(market)) {
                     marketsSpinner.setSelection(position);
-                    break;
+                    return;
                 }
                 position++;
             }
-            if (position == markets.length) {
-                marketsSpinner.setSelection(0);
-            }
+            marketsSpinner.setSelection(0);
         }
 
         public void setPercent(String percent) {
