@@ -7,12 +7,15 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -67,6 +70,18 @@ public class CalcActivity extends Activity {
         editor.putString(DATA_MARKET, fragment.getMarket());
         editor.putString(DATA_PERCENT, fragment.getPercent());
         editor.apply();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fragment.registerListeners();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        fragment.unregisterListeners();
     }
 
     @Override
@@ -215,11 +230,11 @@ public class CalcActivity extends Activity {
 
         public void calculate(double base, double quote) {
             String strBalance = balanceEdit.getText().toString();
-            double balance = Double.parseDouble(strBalance);
+            double balance = strBalance.isEmpty() ? 0 : Double.parseDouble(strBalance);
             String strVolume = volumeEdit.getText().toString();
-            int volume = Integer.parseInt(strVolume);
+            int volume = strVolume.isEmpty() ? 1 : Integer.parseInt(strVolume);
             String strPercent = percentEdit.getText().toString();
-            int percent = Integer.parseInt(strPercent);
+            int percent = strPercent.isEmpty() ? 0 : Integer.parseInt(strPercent);
 
             double commission = volume * 1.3 * base;
             double profit = percent * balance / 100.0;
@@ -229,7 +244,58 @@ public class CalcActivity extends Activity {
             commissionProfitText.setText(String.format("%.2f",commissionProfit));
         }
 
+        private TextWatcher watcher = new TextWatcher() {
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // nothing
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // nothing
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                refresh();
+            }
+        };
+
+        private AdapterView.OnItemSelectedListener onSelected =
+                new AdapterView.OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                refresh();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // empty
+            }
+        };
+
+        public void registerListeners() {
+            balanceEdit.addTextChangedListener(watcher);
+            volumeEdit.addTextChangedListener(watcher);
+            percentEdit.addTextChangedListener(watcher);
+            marketsSpinner.setOnItemSelectedListener(onSelected);
+        }
+
+        public void unregisterListeners() {
+            balanceEdit.removeTextChangedListener(watcher);
+            volumeEdit.removeTextChangedListener(watcher);
+            percentEdit.removeTextChangedListener(watcher);
+            marketsSpinner.setOnItemSelectedListener(null);
+        }
+
         private class StooqTask extends AsyncTask<String,Void,String> {
+
+            /*
+            TODO enhance the algorithm to work good for markets like ***PLN
+            (where quote currency is PLN)
+            */
             @Override
             protected String doInBackground(String... input) {
                 String[] pair = marketPair(input[0]);
