@@ -2,6 +2,8 @@ package net.xinneph.fxcalc;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -25,7 +27,12 @@ import java.net.URL;
 
 public class CalcActivity extends Activity {
 
-    private final static String TAG = CalcActivity.class.getSimpleName();
+    private static final String TAG = CalcActivity.class.getSimpleName();
+    private static final String DATA = "SharedPrefsData";
+    private static final String DATA_BALANCE = "data_balance";
+    private static final String DATA_VOLUME = "data_volume";
+    private static final String DATA_MARKET = "data_market";
+    private static final String DATA_PERCENT = "data_percent";
     private FragmentPercent fragment;
 
     @Override
@@ -38,6 +45,28 @@ public class CalcActivity extends Activity {
                     .add(R.id.container, fragment)
                     .commit();
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        SharedPreferences prefs = getSharedPreferences(DATA, Context.MODE_PRIVATE);
+        fragment.setBalance(prefs.getString(DATA_BALANCE, "0.00"));
+        fragment.setVolume(prefs.getString(DATA_VOLUME, "1"));
+        fragment.setMarket(prefs.getString(DATA_MARKET, ""));
+        fragment.setPercent(prefs.getString(DATA_PERCENT, "0"));
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        SharedPreferences prefs = getSharedPreferences(DATA, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(DATA_BALANCE, fragment.getBalance());
+        editor.putString(DATA_VOLUME, fragment.getVolume());
+        editor.putString(DATA_MARKET, fragment.getMarket());
+        editor.putString(DATA_PERCENT, fragment.getPercent());
+        editor.apply();
     }
 
     @Override
@@ -143,8 +172,47 @@ public class CalcActivity extends Activity {
             refresh();
         }
 
+        public void setBalance(String balance) {
+            balanceEdit.setText(balance);
+        }
+
+        public void setVolume(String volume) {
+            volumeEdit.setText(volume);
+        }
+
+        public void setMarket(String market) {
+            String[] markets = getResources().getStringArray(R.array.markets);
+            int position = 0;
+            for (String m: markets) {
+                if (m.equals(market)) {
+                    marketsSpinner.setSelection(position);
+                    break;
+                }
+                position++;
+            }
+            if (position == markets.length) {
+                marketsSpinner.setSelection(0);
+            }
+        }
+
+        public void setPercent(String percent) {
+            percentEdit.setText(percent);
+        }
+
+        public String getBalance() {
+            return balanceEdit.getText().toString();
+        }
+
+        public String getVolume() {
+            return volumeEdit.getText().toString();
+        }
+
         public String getMarket() {
             return (String) marketsSpinner.getSelectedItem();
+        }
+
+        public String getPercent() {
+            return percentEdit.getText().toString();
         }
 
         public void refresh() {
