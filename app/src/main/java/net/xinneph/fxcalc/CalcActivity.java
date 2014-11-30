@@ -93,9 +93,10 @@ public class CalcActivity extends Activity {
             conn.connect();
             InputStream stream = conn.getInputStream();
             byte[] buffer = new byte[128];
-            stream.read(buffer);
-            String response = new String(buffer);
-            return response;
+            if (stream.read(buffer) <= 0) {
+                throw new IOException("InputStream is closed or empty");
+            }
+            return new String(buffer);
         } catch (IOException e) {
             Log.e(TAG, "Error when connecting for URL " + url, e);
             return null;
@@ -138,6 +139,7 @@ public class CalcActivity extends Activity {
 
         @Override
         public void onStart() {
+            super.onStart();
             refresh();
         }
 
@@ -161,8 +163,8 @@ public class CalcActivity extends Activity {
             double profit = percent * balance / 100.0;
             double pips = (commission + profit)/(volume * quote);
             double commissionProfit = commission / profit;
-            pipsText.setText(""+pips);
-            commissionProfitText.setText(""+commissionProfit);
+            pipsText.setText(String.format("%.2f",pips));
+            commissionProfitText.setText(String.format("%.2f",commissionProfit));
         }
 
         private class StooqTask extends AsyncTask<String,Void,String> {
@@ -172,7 +174,7 @@ public class CalcActivity extends Activity {
                 String contentBase = askFor(pair[0]+"PLN");
                 String contentQuote = askFor(pair[1]+"PLN");
                 return contentBase+"/"+contentQuote;
-            };
+            }
 
             @Override
             protected void onPostExecute(String content) {
