@@ -15,7 +15,6 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,7 +40,6 @@ public class CalcActivity extends Activity {
         }
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -59,13 +57,12 @@ public class CalcActivity extends Activity {
             return true;
         }
         else if (id == R.id.action_stooq) {
-            String market = fragment.getMarket();
-            new StooqTask().execute(market);
+            fragment.refresh();
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private URL getUrl(String market) {
+    private static URL getUrl(String market) {
         try {
             String str = "http://stooq.pl/q/l/?s=" + market + "&f=sd2t2c&e=txt";
             return new URL(str);
@@ -75,17 +72,17 @@ public class CalcActivity extends Activity {
         }
     }
 
-    private String[] parseContent(String content) {
+    private static String[] parseResponse(String content) {
         return content.split(",");
     }
 
-    private String[] marketPair(String market) {
+    private static String[] marketPair(String market) {
         String base = market.substring(0, 3);
         String quote = market.substring(3, 6);
         return new String[] {base, quote};
     }
 
-    private String askFor(String market) {
+    private static String askFor(String market) {
         URL url = getUrl(market);
         try {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -97,75 +94,13 @@ public class CalcActivity extends Activity {
             InputStream stream = conn.getInputStream();
             byte[] buffer = new byte[128];
             stream.read(buffer);
-            String content = new String(buffer);
-            return content;
+            String response = new String(buffer);
+            return response;
         } catch (IOException e) {
             Log.e(TAG, "Error when connecting for URL " + url, e);
             return null;
         }
     }
-
-    private class StooqTask extends AsyncTask<String,Void,String> {
-        @Override
-        protected String doInBackground(String... input) {
-//            String content = askFor(input[0]);
-            String[] pair = marketPair(input[0]);
-            String contentBase = askFor(pair[0]+"PLN");
-            String contentQuote = askFor(pair[1]+"PLN");
-            return contentBase+"/"+contentQuote;
-        };
-
-        @Override
-        protected void onPostExecute(String content) {
-            String[] bq = content.split("/");
-            String[] base = parseContent(bq[0]);
-            String[] quote = parseContent(bq[1]);
-            double b = Double.parseDouble(base[3]);
-            double q = Double.parseDouble(quote[3]);
-            fragment.calculate(b, q);
-//            Toast.makeText(CalcActivity.this, content, Toast.LENGTH_LONG).show();
-        }
-    }
-
-    /**
-     * Fragment calculating percent out of pips.
-     */
-//    public static class FragmentPips extends Fragment {
-//
-//        private EditText balanceEdit, volumeEdit, pipsEdit;
-//        private Spinner marketsSpinner;
-//        private TextView percentText, profitCommissionText;
-//        private ArrayAdapter<String> marketsSpinnerAdapter;
-//
-//        public FragmentPips() {
-//        }
-//
-//        @Override
-//        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-//                Bundle savedInstanceState) {
-//            View rootView = inflater.inflate(R.layout.fragment_pips, container, false);
-//            balanceEdit = (EditText) rootView.findViewById(R.id.edit_balance);
-//            volumeEdit = (EditText) rootView.findViewById(R.id.edit_volume);
-//            pipsEdit = (EditText) rootView.findViewById(R.id.edit_pips);
-//            marketsSpinner = (Spinner) rootView.findViewById(R.id.spinner_markets);
-//            percentText = (TextView) rootView.findViewById(R.id.text_percent);
-//            profitCommissionText = (TextView)
-//                    rootView.findViewById(R.id.text_profit_over_commission);
-//
-//            balanceEdit.setText("243.73");
-//            volumeEdit.setText("10");
-//            pipsEdit.setText("4.0");
-//
-//            Resources r = getResources();
-//            String[] markets = r.getStringArray(R.array.markets);
-//            marketsSpinnerAdapter = new ArrayAdapter<String>(getActivity(),
-//                    android.R.layout.simple_spinner_item, markets);
-//            marketsSpinnerAdapter.setDropDownViewResource(
-//                    android.R.layout.simple_spinner_dropdown_item);
-//            marketsSpinner.setAdapter(marketsSpinnerAdapter);
-//            return rootView;
-//        }
-//    }
 
     /**
      * Fragment calculating pips out of percent.
@@ -201,8 +136,17 @@ public class CalcActivity extends Activity {
             return rootView;
         }
 
+        @Override
+        public void onStart() {
+            refresh();
+        }
+
         public String getMarket() {
             return (String) marketsSpinner.getSelectedItem();
+        }
+
+        public void refresh() {
+            new StooqTask().execute(getMarket());
         }
 
         public void calculate(double base, double quote) {
@@ -219,6 +163,26 @@ public class CalcActivity extends Activity {
             double commissionProfit = commission / profit;
             pipsText.setText(""+pips);
             commissionProfitText.setText(""+commissionProfit);
+        }
+
+        private class StooqTask extends AsyncTask<String,Void,String> {
+            @Override
+            protected String doInBackground(String... input) {
+                String[] pair = marketPair(input[0]);
+                String contentBase = askFor(pair[0]+"PLN");
+                String contentQuote = askFor(pair[1]+"PLN");
+                return contentBase+"/"+contentQuote;
+            };
+
+            @Override
+            protected void onPostExecute(String content) {
+                String[] bq = content.split("/");
+                String[] base = parseResponse(bq[0]);
+                String[] quote = parseResponse(bq[1]);
+                double b = Double.parseDouble(base[3]);
+                double q = Double.parseDouble(quote[3]);
+                calculate(b, q);
+            }
         }
     }
 }
