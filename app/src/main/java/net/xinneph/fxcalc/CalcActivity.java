@@ -104,7 +104,7 @@ public class CalcActivity extends Activity {
             return true;
         }
         else if (id == R.id.action_stooq) {
-            fragment.refresh();
+            fragment.refresh(fragment.getMarket());
         }
         return super.onOptionsItemSelected(item);
     }
@@ -157,6 +157,7 @@ public class CalcActivity extends Activity {
         private EditText balanceEdit, volumeEdit, tpPercentEdit, slPercentEdit;
         private Spinner marketsSpinner;
         private TextView tpPipsText, slPipsText, commissionProfitText;
+        private double basePln, quotePln;
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -185,7 +186,7 @@ public class CalcActivity extends Activity {
         @Override
         public void onStart() {
             super.onStart();
-            refresh();
+            refresh(getMarket());
         }
 
         public void setBalance(String balance) {
@@ -237,8 +238,8 @@ public class CalcActivity extends Activity {
             return slPercentEdit.getText().toString();
         }
 
-        public void refresh() {
-            new StooqTask().execute(getMarket());
+        public void refresh(String market) {
+            new StooqTask().execute(market);
         }
 
         public void calculate(double base, double quote) {
@@ -275,7 +276,7 @@ public class CalcActivity extends Activity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                refresh();
+                calculate(basePln, quotePln);
             }
         };
 
@@ -284,7 +285,7 @@ public class CalcActivity extends Activity {
 
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                refresh();
+                refresh(getMarket());
             }
 
             @Override
@@ -328,9 +329,9 @@ public class CalcActivity extends Activity {
                 String[] bq = content.split("/");
                 String[] base = parseResponse(bq[0]);
                 String[] quote = parseResponse(bq[1]);
-                double b = Double.parseDouble(base[3]);
-                double q = Double.parseDouble(quote[3]);
-                calculate(b, q);
+                basePln = Double.parseDouble(base[3]);
+                quotePln = Double.parseDouble(quote[3]);
+                calculate(basePln, quotePln);
             }
         }
     }
