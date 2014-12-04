@@ -35,7 +35,8 @@ public class CalcActivity extends Activity {
     private static final String DATA_BALANCE = "data_balance";
     private static final String DATA_VOLUME = "data_volume";
     private static final String DATA_MARKET = "data_market";
-    private static final String DATA_PERCENT = "data_percent";
+    private static final String DATA_PERCENT_TP = "data_percent_tp";
+    private static final String DATA_PERCENT_SL = "data_percent_sl";
     private FragmentPercent fragment;
 
     @Override
@@ -55,9 +56,10 @@ public class CalcActivity extends Activity {
         super.onStart();
         SharedPreferences prefs = getSharedPreferences(DATA, Context.MODE_PRIVATE);
         fragment.setBalance(prefs.getString(DATA_BALANCE, "0.00"));
-        fragment.setVolume(prefs.getString(DATA_VOLUME, "1"));
+        fragment.setVolume(prefs.getString(DATA_VOLUME, "0"));
         fragment.setMarket(prefs.getString(DATA_MARKET, ""));
-        fragment.setPercent(prefs.getString(DATA_PERCENT, "0"));
+        fragment.setPercentTp(prefs.getString(DATA_PERCENT_TP, "0"));
+        fragment.setPercentSl(prefs.getString(DATA_PERCENT_SL, "0"));
     }
 
     @Override
@@ -68,7 +70,8 @@ public class CalcActivity extends Activity {
         editor.putString(DATA_BALANCE, fragment.getBalance());
         editor.putString(DATA_VOLUME, fragment.getVolume());
         editor.putString(DATA_MARKET, fragment.getMarket());
-        editor.putString(DATA_PERCENT, fragment.getPercent());
+        editor.putString(DATA_PERCENT_TP, fragment.getPercentTp());
+        editor.putString(DATA_PERCENT_SL, fragment.getPercentSl());
         editor.apply();
     }
 
@@ -151,9 +154,9 @@ public class CalcActivity extends Activity {
      * Fragment calculating pips out of percent.
      */
     public static class FragmentPercent extends Fragment {
-        private EditText balanceEdit, volumeEdit, percentEdit;
+        private EditText balanceEdit, volumeEdit, tpPercentEdit, slPercentEdit;
         private Spinner marketsSpinner;
-        private TextView pipsText, commissionProfitText;
+        private TextView tpPipsText, slPipsText, commissionProfitText;
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -161,9 +164,11 @@ public class CalcActivity extends Activity {
             View rootView = inflater.inflate(R.layout.fragment_percent, container, false);
             balanceEdit = (EditText) rootView.findViewById(R.id.edit_balance);
             volumeEdit = (EditText) rootView.findViewById(R.id.edit_volume);
-            percentEdit = (EditText) rootView.findViewById(R.id.edit_percent);
+            tpPercentEdit = (EditText) rootView.findViewById(R.id.edit_percent_tp);
+            slPercentEdit = (EditText) rootView.findViewById(R.id.edit_percent_sl);
             marketsSpinner = (Spinner) rootView.findViewById(R.id.spinner_markets);
-            pipsText = (TextView) rootView.findViewById(R.id.text_pips);
+            tpPipsText = (TextView) rootView.findViewById(R.id.text_pips_tp);
+            slPipsText = (TextView) rootView.findViewById(R.id.text_pips_sl);
             commissionProfitText = (TextView)
                     rootView.findViewById(R.id.text_commission_over_profit);
 
@@ -204,8 +209,12 @@ public class CalcActivity extends Activity {
             marketsSpinner.setSelection(0);
         }
 
-        public void setPercent(String percent) {
-            percentEdit.setText(percent);
+        public void setPercentTp(String percent) {
+            tpPercentEdit.setText(percent);
+        }
+
+        public void setPercentSl(String percent) {
+            slPercentEdit.setText(percent);
         }
 
         public String getBalance() {
@@ -220,8 +229,12 @@ public class CalcActivity extends Activity {
             return (String) marketsSpinner.getSelectedItem();
         }
 
-        public String getPercent() {
-            return percentEdit.getText().toString();
+        public String getPercentTp() {
+            return tpPercentEdit.getText().toString();
+        }
+
+        public String getPercentSl() {
+            return slPercentEdit.getText().toString();
         }
 
         public void refresh() {
@@ -233,15 +246,19 @@ public class CalcActivity extends Activity {
             double balance = strBalance.isEmpty() ? 0 : Double.parseDouble(strBalance);
             String strVolume = volumeEdit.getText().toString();
             int volume = strVolume.isEmpty() ? 1 : Integer.parseInt(strVolume);
-            String strPercent = percentEdit.getText().toString();
-            int percent = strPercent.isEmpty() ? 0 : Integer.parseInt(strPercent);
+            String strPercentTp = tpPercentEdit.getText().toString();
+            int percentTp = strPercentTp.isEmpty() ? 0 : Integer.parseInt(strPercentTp);
+            int percentSl = getPercentSl().isEmpty() ? 0 : Integer.parseInt(getPercentSl());
 
             double commission = volume * 1.3 * base;
-            double profit = percent * balance / 100.0;
-            double pips = (commission + profit)/(volume * quote);
+            double profit = percentTp * balance / 100.0;
+            double pipsTp = (commission + profit)/(volume * quote);
             double commissionProfit = commission / profit;
-            pipsText.setText(String.format("%.2f",pips));
+            tpPipsText.setText(String.format("%.2f", pipsTp));
             commissionProfitText.setText(String.format("%.2f",commissionProfit));
+            double loss = percentSl * balance / 100.0;
+            double pipsSl = (loss - commission) / (volume * quote);
+            slPipsText.setText(String.format("%.2f",pipsSl));
         }
 
         private TextWatcher watcher = new TextWatcher() {
@@ -279,14 +296,16 @@ public class CalcActivity extends Activity {
         public void registerListeners() {
             balanceEdit.addTextChangedListener(watcher);
             volumeEdit.addTextChangedListener(watcher);
-            percentEdit.addTextChangedListener(watcher);
+            tpPercentEdit.addTextChangedListener(watcher);
+            slPercentEdit.addTextChangedListener(watcher);
             marketsSpinner.setOnItemSelectedListener(onSelected);
         }
 
         public void unregisterListeners() {
             balanceEdit.removeTextChangedListener(watcher);
             volumeEdit.removeTextChangedListener(watcher);
-            percentEdit.removeTextChangedListener(watcher);
+            tpPercentEdit.removeTextChangedListener(watcher);
+            slPercentEdit.removeTextChangedListener(watcher);
             marketsSpinner.setOnItemSelectedListener(null);
         }
 

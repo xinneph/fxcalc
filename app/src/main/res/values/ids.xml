@@ -3,11 +3,11 @@
     <item name="edit_balance" type="id"/>
     <item name="edit_volume" type="id"/>
     <item name="spinner_markets" type="id"/>
-    <item name="edit_pips" type="id"/>
-    <item name="text_percent" type="id"/>
     <item name="text_commission_over_profit" type="id"/>
-    <item name="text_pips" type="id"/>
-    <item name="edit_percent" type="id"/>
+    <item name="text_pips_tp" type="id"/>
+    <item name="edit_percent_tp" type="id"/>
+    <item name="text_pips_sl" type="id"/>
+    <item name="edit_percent_sl" type="id"/>
 
     <item name="action_settings" type="id"/>
     <item name="action_stooq" type="id"/>

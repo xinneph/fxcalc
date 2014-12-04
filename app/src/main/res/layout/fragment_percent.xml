@@ -27,18 +27,29 @@
         android:id="@id/spinner_markets" />
 
     <EditText
-        android:id="@id/edit_percent"
+        android:id="@id/edit_percent_tp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="number"/>
 
     <TextView
-        android:id="@id/text_pips"
+        android:id="@id/text_pips_tp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
     <TextView
         android:id="@id/text_commission_over_profit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <EditText
+        android:id="@id/edit_percent_sl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"/>
+
+    <TextView
+        android:id="@id/text_pips_sl"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 </LinearLayout>
