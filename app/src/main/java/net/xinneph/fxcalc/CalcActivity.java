@@ -37,54 +37,17 @@ public class CalcActivity extends Activity {
     private static final String DATA_MARKET = "data_market";
     private static final String DATA_PERCENT_TP = "data_percent_tp";
     private static final String DATA_PERCENT_SL = "data_percent_sl";
-    private FragmentPercent fragment;
+    private static final int MIN_VOLUME = 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calc);
         if (savedInstanceState == null) {
-            fragment = new FragmentPercent();
             getFragmentManager().beginTransaction()
-                    .add(R.id.container, fragment)
+                    .add(R.id.container, new FragmentPercent())
                     .commit();
         }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        SharedPreferences prefs = getSharedPreferences(DATA, Context.MODE_PRIVATE);
-        fragment.setBalance(prefs.getString(DATA_BALANCE, "0.00"));
-        fragment.setVolume(prefs.getString(DATA_VOLUME, "0"));
-        fragment.setMarket(prefs.getString(DATA_MARKET, ""));
-        fragment.setPercentTp(prefs.getString(DATA_PERCENT_TP, "0"));
-        fragment.setPercentSl(prefs.getString(DATA_PERCENT_SL, "0"));
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        SharedPreferences prefs = getSharedPreferences(DATA, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(DATA_BALANCE, fragment.getBalance());
-        editor.putString(DATA_VOLUME, fragment.getVolume());
-        editor.putString(DATA_MARKET, fragment.getMarket());
-        editor.putString(DATA_PERCENT_TP, fragment.getPercentTp());
-        editor.putString(DATA_PERCENT_SL, fragment.getPercentSl());
-        editor.apply();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        fragment.registerListeners();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        fragment.unregisterListeners();
     }
 
     @Override
@@ -102,9 +65,6 @@ public class CalcActivity extends Activity {
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             return true;
-        }
-        else if (id == R.id.action_stooq) {
-            fragment.refresh(fragment.getMarket());
         }
         return super.onOptionsItemSelected(item);
     }
@@ -158,6 +118,26 @@ public class CalcActivity extends Activity {
         private Spinner marketsSpinner;
         private TextView tpPipsText, slPipsText, commissionProfitText;
         private double basePln, quotePln;
+        private Activity activityAttach;
+
+        @Override
+        public void onAttach(Activity activity) {
+            super.onAttach(activity);
+            activityAttach = activity;
+        }
+
+        @Override
+        public void onDestroy() {
+            super.onDestroy();
+            SharedPreferences prefs = activityAttach.getSharedPreferences(DATA, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString(DATA_BALANCE, getBalance());
+            editor.putString(DATA_VOLUME, getVolume());
+            editor.putString(DATA_MARKET, getMarket());
+            editor.putString(DATA_PERCENT_TP, getPercentTp());
+            editor.putString(DATA_PERCENT_SL, getPercentSl());
+            editor.apply();
+        }
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -184,20 +164,37 @@ public class CalcActivity extends Activity {
         }
 
         @Override
-        public void onStart() {
-            super.onStart();
-            refresh(getMarket());
+        public void onActivityCreated(Bundle savedInstanceState) {
+            super.onActivityCreated(savedInstanceState);
+            SharedPreferences prefs = activityAttach.getSharedPreferences(DATA, Context.MODE_PRIVATE);
+            setBalance(prefs.getString(DATA_BALANCE, "0.00"));
+            setVolume(prefs.getString(DATA_VOLUME, "0"));
+            setMarket(prefs.getString(DATA_MARKET, ""));
+            setPercentTp(prefs.getString(DATA_PERCENT_TP, "0"));
+            setPercentSl(prefs.getString(DATA_PERCENT_SL, "0"));
         }
 
-        public void setBalance(String balance) {
+        @Override
+        public void onStart() {
+            super.onStart();
+            registerListeners();
+        }
+
+        @Override
+        public void onStop() {
+            super.onStop();
+            unregisterListeners();
+        }
+
+        private void setBalance(String balance) {
             balanceEdit.setText(balance);
         }
 
-        public void setVolume(String volume) {
+        private void setVolume(String volume) {
             volumeEdit.setText(volume);
         }
 
-        public void setMarket(String market) {
+        private void setMarket(String market) {
             String[] markets = getResources().getStringArray(R.array.markets);
             int position = 0;
             for (String m: markets) {
@@ -210,31 +207,31 @@ public class CalcActivity extends Activity {
             marketsSpinner.setSelection(0);
         }
 
-        public void setPercentTp(String percent) {
+        private void setPercentTp(String percent) {
             tpPercentEdit.setText(percent);
         }
 
-        public void setPercentSl(String percent) {
+        private void setPercentSl(String percent) {
             slPercentEdit.setText(percent);
         }
 
-        public String getBalance() {
+        private String getBalance() {
             return balanceEdit.getText().toString();
         }
 
-        public String getVolume() {
+        private String getVolume() {
             return volumeEdit.getText().toString();
         }
 
-        public String getMarket() {
+        private String getMarket() {
             return (String) marketsSpinner.getSelectedItem();
         }
 
-        public String getPercentTp() {
+        private String getPercentTp() {
             return tpPercentEdit.getText().toString();
         }
 
-        public String getPercentSl() {
+        private String getPercentSl() {
             return slPercentEdit.getText().toString();
         }
 
@@ -246,14 +243,14 @@ public class CalcActivity extends Activity {
             String strBalance = balanceEdit.getText().toString();
             double balance = strBalance.isEmpty() ? 0 : Double.parseDouble(strBalance);
             String strVolume = volumeEdit.getText().toString();
-            int volume = strVolume.isEmpty() ? 1 : Integer.parseInt(strVolume);
+            int volume = strVolume.isEmpty() ? MIN_VOLUME : Integer.parseInt(strVolume);
             String strPercentTp = tpPercentEdit.getText().toString();
             int percentTp = strPercentTp.isEmpty() ? 0 : Integer.parseInt(strPercentTp);
             int percentSl = getPercentSl().isEmpty() ? 0 : Integer.parseInt(getPercentSl());
 
-            double commission = volume * 1.3 * base;
+            double commission = volume * 0.13 * base;
             double profit = percentTp * balance / 100.0;
-            double pipsTp = (commission + profit)/(volume * quote);
+            double pipsTp = (profit + commission)/(volume * quote);
             double commissionProfit = commission / profit;
             tpPipsText.setText(String.format("%.2f", pipsTp));
             commissionProfitText.setText(String.format("%.2f",commissionProfit));
