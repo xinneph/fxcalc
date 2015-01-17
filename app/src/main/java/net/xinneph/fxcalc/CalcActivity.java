@@ -69,7 +69,7 @@ public class CalcActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    private static URL getUrl(String market) {
+    private static URL createUrlForMarket(String market) {
         try {
             String str = "http://stooq.pl/q/l/?s=" + market + "&f=sd2t2c&e=txt";
             return new URL(str);
@@ -83,14 +83,14 @@ public class CalcActivity extends Activity {
         return content.split(",");
     }
 
-    private static String[] marketPair(String market) {
+    private static String[] marketPairs(String market) {
         String base = market.substring(0, 3);
         String quote = market.substring(3, 6);
         return new String[] {base, quote};
     }
 
     private static String askFor(String market) {
-        URL url = getUrl(market);
+        URL url = createUrlForMarket(market);
         try {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(3000);
@@ -239,7 +239,7 @@ public class CalcActivity extends Activity {
             new StooqTask().execute(market);
         }
 
-        public void calculate(double base, double quote) {
+        private void calculate(double base, double quote) {
             String strBalance = balanceEdit.getText().toString();
             double balance = strBalance.isEmpty() ? 0 : Double.parseDouble(strBalance);
             String strVolume = volumeEdit.getText().toString();
@@ -250,12 +250,12 @@ public class CalcActivity extends Activity {
 
             double commission = volume * 0.13 * base;
             double profit = percentTp * balance / 100.0;
-            double pipsTp = (profit + commission)/(volume * quote);
+            double pipsTp = (profit + commission)/(volume * quote / 10.0);
             double commissionProfit = commission / profit;
             tpPipsText.setText(String.format("%.2f", pipsTp));
             commissionProfitText.setText(String.format("%.2f",commissionProfit));
             double loss = percentSl * balance / 100.0;
-            double pipsSl = (loss - commission) / (volume * quote);
+            double pipsSl = (loss - commission) / (volume * quote / 10.0);
             slPipsText.setText(String.format("%.2f",pipsSl));
         }
 
@@ -315,7 +315,7 @@ public class CalcActivity extends Activity {
             */
             @Override
             protected String doInBackground(String... input) {
-                String[] pair = marketPair(input[0]);
+                String[] pair = marketPairs(input[0]);
                 String contentBase = askFor(pair[0]+"PLN");
                 String contentQuote = askFor(pair[1]+"PLN");
                 return contentBase+"/"+contentQuote;
