@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -120,6 +121,7 @@ public class CalcActivity extends Activity {
         private TextView tpPipsText, slPipsText, commissionProfitText, depositText;
         private double basePln, quotePln;
         private Activity activityAttach;
+        private Button addVolume, oddVolume;
 
         @Override
         public void onAttach(Activity activity) {
@@ -156,6 +158,8 @@ public class CalcActivity extends Activity {
                     rootView.findViewById(R.id.text_commission_over_profit);
             leverageEdit = (EditText) rootView.findViewById(R.id.edit_leverage);
             depositText = (TextView) rootView.findViewById(R.id.text_deposit);
+            addVolume = (Button) rootView.findViewById(R.id.button_add_volume);
+            oddVolume = (Button) rootView.findViewById(R.id.button_odd_volume);
 
             Resources r = getResources();
             String[] markets = r.getStringArray(R.array.markets);
@@ -183,6 +187,34 @@ public class CalcActivity extends Activity {
         public void onStart() {
             super.onStart();
             registerListeners();
+            addVolume.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String strVolume = getVolume();
+                    if (strVolume.isEmpty()) {
+                        setVolume("10");
+                    }
+                    else {
+                        Integer volume = Integer.parseInt(strVolume);
+                        volume += 10;
+                        setVolume(volume.toString());
+                    }
+                }
+            });
+            oddVolume.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String strVolume = getVolume();
+                    if (strVolume.isEmpty() || "0".equals(strVolume)) {
+                        return;
+                    }
+                    else {
+                        Integer volume = Integer.parseInt(strVolume);
+                        volume -= 10;
+                        setVolume(volume.toString());
+                    }
+                }
+            });
         }
 
         @Override

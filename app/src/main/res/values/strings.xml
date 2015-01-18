@@ -9,7 +9,8 @@
     <string name="profit_dd">Profit:</string>
     <string name="loss_dd">Loss:</string>
     <string name="leverage_dd">Leverage:</string>
-
+    <string name="button_add_volume">+10</string>
+    <string name="button_odd_volume">-10</string>
     <string-array name="markets">
         <item>EURUSD</item>
         <item>USDJPY</item>

@@ -12,4 +12,6 @@
     <item name="action_settings" type="id"/>
     <item name="action_stooq" type="id"/>
     <item name="edit_leverage" type="id"/>
+    <item name="button_add_volume" type="id"/>
+    <item name="button_odd_volume" type="id"/>
 </resources>

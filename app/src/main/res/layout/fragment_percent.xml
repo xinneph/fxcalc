@@ -9,13 +9,13 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context=".CalcActivity$PlaceholderFragment">
 
-    <Spinner
-        android:padding="@dimen/activity_vertical_margin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@id/spinner_markets" />
-
     <TableRow>
+
+        <Spinner
+            android:padding="@dimen/activity_vertical_margin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@id/spinner_markets" />
 
         <LinearLayout
             android:orientation="vertical"
@@ -35,6 +35,10 @@
                 android:layout_height="wrap_content" />
 
         </LinearLayout>
+
+    </TableRow>
+
+    <TableRow>
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -70,13 +74,37 @@
                 android:text="@string/volume_dd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
-            <EditText
-                android:id="@id/edit_volume"
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
-                android:numeric="integer"
-                android:focusable="true" />
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@id/button_odd_volume"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="onClickOddVolume"
+                    android:text="@string/button_odd_volume"/>
+
+                <EditText
+                    android:id="@id/edit_volume"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    android:numeric="integer"/>
+
+                <Button
+                    android:id="@id/button_add_volume"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/button_add_volume"
+                    android:onClick="onClickAddVolume" />
+
+            </LinearLayout>
+
         </LinearLayout>
 
     </TableRow>
@@ -109,6 +137,7 @@
                 android:id="@id/text_commission_over_profit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
+
         </LinearLayout>
 
         <LinearLayout
