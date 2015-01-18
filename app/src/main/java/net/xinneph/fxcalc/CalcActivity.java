@@ -37,6 +37,7 @@ public class CalcActivity extends Activity {
     private static final String DATA_MARKET = "data_market";
     private static final String DATA_PERCENT_TP = "data_percent_tp";
     private static final String DATA_PERCENT_SL = "data_percent_sl";
+    private static final String DATA_LEVERAGE = "data_leverage";
     private static final int MIN_VOLUME = 10;
 
     @Override
@@ -114,9 +115,9 @@ public class CalcActivity extends Activity {
      * Fragment calculating pips out of percent.
      */
     public static class FragmentPercent extends Fragment {
-        private EditText balanceEdit, volumeEdit, tpPercentEdit, slPercentEdit;
+        private EditText balanceEdit, volumeEdit, tpPercentEdit, slPercentEdit, leverageEdit;
         private Spinner marketsSpinner;
-        private TextView tpPipsText, slPipsText, commissionProfitText;
+        private TextView tpPipsText, slPipsText, commissionProfitText, depositText;
         private double basePln, quotePln;
         private Activity activityAttach;
 
@@ -136,6 +137,7 @@ public class CalcActivity extends Activity {
             editor.putString(DATA_MARKET, getMarket());
             editor.putString(DATA_PERCENT_TP, getPercentTp());
             editor.putString(DATA_PERCENT_SL, getPercentSl());
+            editor.putString(DATA_LEVERAGE, getLeverage());
             editor.apply();
         }
 
@@ -152,6 +154,8 @@ public class CalcActivity extends Activity {
             slPipsText = (TextView) rootView.findViewById(R.id.text_pips_sl);
             commissionProfitText = (TextView)
                     rootView.findViewById(R.id.text_commission_over_profit);
+            leverageEdit = (EditText) rootView.findViewById(R.id.edit_leverage);
+            depositText = (TextView) rootView.findViewById(R.id.text_deposit);
 
             Resources r = getResources();
             String[] markets = r.getStringArray(R.array.markets);
@@ -172,6 +176,7 @@ public class CalcActivity extends Activity {
             setMarket(prefs.getString(DATA_MARKET, ""));
             setPercentTp(prefs.getString(DATA_PERCENT_TP, "0"));
             setPercentSl(prefs.getString(DATA_PERCENT_SL, "0"));
+            setLeverage(prefs.getString(DATA_LEVERAGE, "10"));
         }
 
         @Override
@@ -215,6 +220,10 @@ public class CalcActivity extends Activity {
             slPercentEdit.setText(percent);
         }
 
+        private void setLeverage(String leverage) {
+            leverageEdit.setText(leverage);
+        }
+
         private String getBalance() {
             return balanceEdit.getText().toString();
         }
@@ -233,6 +242,10 @@ public class CalcActivity extends Activity {
 
         private String getPercentSl() {
             return slPercentEdit.getText().toString();
+        }
+
+        private String getLeverage() {
+            return leverageEdit.getText().toString();
         }
 
         public void refresh(String market) {
@@ -256,10 +269,17 @@ public class CalcActivity extends Activity {
             commissionProfitText.setText(String.format("%.2f",commissionProfit));
             double loss = percentSl * balance / 100.0;
             double pipsSl = (loss - commission) / (volume * quote / 10.0);
-            slPipsText.setText(String.format("%.2f",pipsSl));
+            slPipsText.setText(String.format("%.2f", pipsSl));
         }
 
-        private TextWatcher watcher = new TextWatcher() {
+        private void calculateDeposit() {
+            int leverage = getLeverage().isEmpty() ? 0 : Integer.parseInt(getLeverage());
+            int volume = getVolume().isEmpty() ? 0 : Integer.parseInt(getVolume());
+            double depositPln = basePln * (volume * 1000) / leverage;
+            depositText.setText(String.format("%.2f", depositPln));
+        }
+
+        private final TextWatcher watcher = new TextWatcher() {
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -277,7 +297,24 @@ public class CalcActivity extends Activity {
             }
         };
 
-        private AdapterView.OnItemSelectedListener onSelected =
+        private final TextWatcher depositCalculator = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // nothing
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // nothing
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                calculateDeposit();
+            }
+        };
+
+        private final AdapterView.OnItemSelectedListener onSelected =
                 new AdapterView.OnItemSelectedListener() {
 
             @Override
@@ -294,17 +331,21 @@ public class CalcActivity extends Activity {
         public void registerListeners() {
             balanceEdit.addTextChangedListener(watcher);
             volumeEdit.addTextChangedListener(watcher);
+            volumeEdit.addTextChangedListener(depositCalculator);
             tpPercentEdit.addTextChangedListener(watcher);
             slPercentEdit.addTextChangedListener(watcher);
             marketsSpinner.setOnItemSelectedListener(onSelected);
+            leverageEdit.addTextChangedListener(depositCalculator);
         }
 
         public void unregisterListeners() {
             balanceEdit.removeTextChangedListener(watcher);
             volumeEdit.removeTextChangedListener(watcher);
+            volumeEdit.removeTextChangedListener(depositCalculator);
             tpPercentEdit.removeTextChangedListener(watcher);
             slPercentEdit.removeTextChangedListener(watcher);
             marketsSpinner.setOnItemSelectedListener(null);
+            leverageEdit.removeTextChangedListener(depositCalculator);
         }
 
         private class StooqTask extends AsyncTask<String,Void,String> {
@@ -328,6 +369,7 @@ public class CalcActivity extends Activity {
                 String[] quote = parseResponse(bq[1]);
                 basePln = Double.parseDouble(base[3]);
                 quotePln = Double.parseDouble(quote[3]);
+                calculateDeposit();
                 calculate(basePln, quotePln);
             }
         }

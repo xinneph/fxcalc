@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
@@ -9,47 +9,132 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context=".CalcActivity$PlaceholderFragment">
 
-    <EditText
-        android:id="@id/edit_balance"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="numberDecimal"/>
-
-    <EditText
-        android:id="@id/edit_volume"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="numberDecimal"/>
-
     <Spinner
+        android:padding="@dimen/activity_vertical_margin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@id/spinner_markets" />
 
-    <EditText
-        android:id="@id/edit_percent_tp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="number"/>
+    <TableRow>
 
-    <TextView
-        android:id="@id/text_pips_tp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/activity_vertical_margin">
 
-    <TextView
-        android:id="@id/text_commission_over_profit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+            <TextView
+                android:text="@string/leverage_dd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
-    <EditText
-        android:id="@id/edit_percent_sl"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="number"/>
+            <EditText
+                android:id="@id/edit_leverage"
+                android:inputType="numberDecimal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
-    <TextView
-        android:id="@id/text_pips_sl"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-</LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/activity_vertical_margin">
+
+            <TextView
+                android:text="@string/balance_dd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@id/edit_balance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"/>
+
+            <TextView
+                android:id="@id/text_deposit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/activity_vertical_margin">
+
+            <TextView
+                android:text="@string/volume_dd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <EditText
+                android:id="@id/edit_volume"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:numeric="integer"
+                android:focusable="true" />
+        </LinearLayout>
+
+    </TableRow>
+
+    <TableRow>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/activity_vertical_margin">
+
+            <TextView
+                android:text="@string/profit_dd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@id/edit_percent_tp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="number"/>
+
+            <TextView
+                android:id="@id/text_pips_tp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@id/text_commission_over_profit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/activity_vertical_margin">
+
+            <TextView
+                android:text="@string/loss_dd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@id/edit_percent_sl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="number"/>
+
+            <TextView
+                android:id="@id/text_pips_sl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+    </TableRow>
+
+</TableLayout>

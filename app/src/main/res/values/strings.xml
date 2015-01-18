@@ -4,6 +4,11 @@
     <string name="app_name">Fxcalc</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="balance_dd">Balance:</string>
+    <string name="volume_dd">Volume:</string>
+    <string name="profit_dd">Profit:</string>
+    <string name="loss_dd">Loss:</string>
+    <string name="leverage_dd">Leverage:</string>
 
     <string-array name="markets">
         <item>EURUSD</item>

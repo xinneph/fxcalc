@@ -8,7 +8,8 @@
     <item name="edit_percent_tp" type="id"/>
     <item name="text_pips_sl" type="id"/>
     <item name="edit_percent_sl" type="id"/>
-
+    <item name="text_deposit" type="id"/>
     <item name="action_settings" type="id"/>
     <item name="action_stooq" type="id"/>
+    <item name="edit_leverage" type="id"/>
 </resources>
