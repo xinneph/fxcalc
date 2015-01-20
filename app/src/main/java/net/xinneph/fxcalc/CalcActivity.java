@@ -119,7 +119,7 @@ public class CalcActivity extends Activity {
     public static class FragmentPercent extends Fragment {
         private EditText balanceEdit, volumeEdit, tpPercentEdit, slPercentEdit, leverageEdit;
         private Spinner marketsSpinner;
-        private TextView tpPipsText, slPipsText, commissionProfitText, depositText;
+        private TextView tpPipsText, slPipsText, commissionProfitText, depositText, depositPercent;
         private EditText commissionEdit;
         private TextView commissionAmountText, commissionPercentText;
         private double basePln, quotePln;
@@ -162,6 +162,7 @@ public class CalcActivity extends Activity {
                     rootView.findViewById(R.id.text_commission_over_profit);
             leverageEdit = (EditText) rootView.findViewById(R.id.edit_leverage);
             depositText = (TextView) rootView.findViewById(R.id.text_deposit);
+            depositPercent = (TextView) rootView.findViewById(R.id.text_deposit_percent);
             addVolume = (Button) rootView.findViewById(R.id.button_add_volume);
             oddVolume = (Button) rootView.findViewById(R.id.button_odd_volume);
             commissionEdit = (EditText) rootView.findViewById(R.id.edit_commission);
@@ -328,6 +329,8 @@ public class CalcActivity extends Activity {
             int volume = getVolume().isEmpty() ? 0 : Integer.parseInt(getVolume());
             double depositPln = basePln * (volume * 1000) / leverage;
             depositText.setText(String.format("%.2f", depositPln));
+            double balance = getBalance().isEmpty() ? 0.0 : Double.parseDouble(getBalance());
+            depositPercent.setText(String.format("%.2f", depositPln / balance * 100.0)+" %");
         }
 
         private final TextWatcher watcher = new TextWatcher() {

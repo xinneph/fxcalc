@@ -17,4 +17,5 @@
     <item name="edit_commission" type="id"/>
     <item name="text_commission_amount" type="id"/>
     <item name="text_commission_percent" type="id"/>
+    <item name="text_deposit_percent" type="id"/>
 </resources>
