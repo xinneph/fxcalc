@@ -39,6 +39,7 @@ public class CalcActivity extends Activity {
     private static final String DATA_PERCENT_TP = "data_percent_tp";
     private static final String DATA_PERCENT_SL = "data_percent_sl";
     private static final String DATA_LEVERAGE = "data_leverage";
+    private static final String DATA_COMMISSION = "data_commission";
     private static final int MIN_VOLUME = 10;
 
     @Override
@@ -119,6 +120,8 @@ public class CalcActivity extends Activity {
         private EditText balanceEdit, volumeEdit, tpPercentEdit, slPercentEdit, leverageEdit;
         private Spinner marketsSpinner;
         private TextView tpPipsText, slPipsText, commissionProfitText, depositText;
+        private EditText commissionEdit;
+        private TextView commissionAmountText, commissionPercentText;
         private double basePln, quotePln;
         private Activity activityAttach;
         private Button addVolume, oddVolume;
@@ -140,6 +143,7 @@ public class CalcActivity extends Activity {
             editor.putString(DATA_PERCENT_TP, getPercentTp());
             editor.putString(DATA_PERCENT_SL, getPercentSl());
             editor.putString(DATA_LEVERAGE, getLeverage());
+            editor.putString(DATA_COMMISSION, getCommission());
             editor.apply();
         }
 
@@ -160,6 +164,9 @@ public class CalcActivity extends Activity {
             depositText = (TextView) rootView.findViewById(R.id.text_deposit);
             addVolume = (Button) rootView.findViewById(R.id.button_add_volume);
             oddVolume = (Button) rootView.findViewById(R.id.button_odd_volume);
+            commissionEdit = (EditText) rootView.findViewById(R.id.edit_commission);
+            commissionAmountText = (TextView) rootView.findViewById(R.id.text_commission_amount);
+            commissionPercentText = (TextView) rootView.findViewById(R.id.text_commission_percent);
 
             Resources r = getResources();
             String[] markets = r.getStringArray(R.array.markets);
@@ -181,6 +188,7 @@ public class CalcActivity extends Activity {
             setPercentTp(prefs.getString(DATA_PERCENT_TP, "0"));
             setPercentSl(prefs.getString(DATA_PERCENT_SL, "0"));
             setLeverage(prefs.getString(DATA_LEVERAGE, "10"));
+            setCommission(prefs.getString(DATA_COMMISSION, "0"));
         }
 
         @Override
@@ -256,6 +264,10 @@ public class CalcActivity extends Activity {
             leverageEdit.setText(leverage);
         }
 
+        private void setCommission(String commission) {
+            commissionEdit.setText(commission);
+        }
+
         private String getBalance() {
             return balanceEdit.getText().toString();
         }
@@ -280,20 +292,27 @@ public class CalcActivity extends Activity {
             return leverageEdit.getText().toString();
         }
 
+        private String getCommission() {
+            return commissionEdit.getText().toString();
+        }
+
         public void refresh(String market) {
             new StooqTask().execute(market);
         }
 
         private void calculate(double base, double quote) {
-            String strBalance = balanceEdit.getText().toString();
-            double balance = strBalance.isEmpty() ? 0 : Double.parseDouble(strBalance);
+            double balance = getBalance().isEmpty() ? 0.0 : Double.parseDouble(getBalance());
             String strVolume = volumeEdit.getText().toString();
-            int volume = strVolume.isEmpty() ? MIN_VOLUME : Integer.parseInt(strVolume);
+            int volume = strVolume.isEmpty() ? 0 : Integer.parseInt(strVolume);
             String strPercentTp = tpPercentEdit.getText().toString();
             int percentTp = strPercentTp.isEmpty() ? 0 : Integer.parseInt(strPercentTp);
             int percentSl = getPercentSl().isEmpty() ? 0 : Integer.parseInt(getPercentSl());
+            double commissionPerLot = getCommission().isEmpty() ? 0.0 : Double.parseDouble(getCommission());
+            double commission = volume * (commissionPerLot / 100.0) * base;
+            commissionAmountText.setText(String.format("%.2f", commission));
+            double commissionPercent = commission / balance * 100.0;
+            commissionPercentText.setText(String.format("%.2f", commissionPercent)+" %");
 
-            double commission = volume * 0.13 * base;
             double profit = percentTp * balance / 100.0;
             double pipsTp = (profit + commission)/(volume * quote / 10.0);
             double commissionProfit = commission / profit;
@@ -368,6 +387,7 @@ public class CalcActivity extends Activity {
             slPercentEdit.addTextChangedListener(watcher);
             marketsSpinner.setOnItemSelectedListener(onSelected);
             leverageEdit.addTextChangedListener(depositCalculator);
+            commissionEdit.addTextChangedListener(watcher);
         }
 
         public void unregisterListeners() {
@@ -378,6 +398,7 @@ public class CalcActivity extends Activity {
             slPercentEdit.removeTextChangedListener(watcher);
             marketsSpinner.setOnItemSelectedListener(null);
             leverageEdit.removeTextChangedListener(depositCalculator);
+            commissionEdit.removeTextChangedListener(watcher);
         }
 
         private class StooqTask extends AsyncTask<String,Void,String> {

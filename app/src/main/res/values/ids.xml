@@ -14,4 +14,7 @@
     <item name="edit_leverage" type="id"/>
     <item name="button_add_volume" type="id"/>
     <item name="button_odd_volume" type="id"/>
+    <item name="edit_commission" type="id"/>
+    <item name="text_commission_amount" type="id"/>
+    <item name="text_commission_percent" type="id"/>
 </resources>

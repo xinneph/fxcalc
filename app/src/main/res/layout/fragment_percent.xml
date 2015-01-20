@@ -9,7 +9,6 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context=".CalcActivity$PlaceholderFragment">
 
-    <TableRow>
 
         <Spinner
             android:padding="@dimen/activity_vertical_margin"
@@ -18,25 +17,47 @@
             android:id="@id/spinner_markets" />
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:padding="@dimen/activity_vertical_margin">
 
             <TextView
-                android:text="@string/leverage_dd"
+                android:text="@string/volume_dd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
-            <EditText
-                android:id="@id/edit_leverage"
-                android:inputType="numberDecimal"
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@id/button_odd_volume"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/button_odd_volume"/>
+
+                <EditText
+                    android:id="@id/edit_volume"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    android:numeric="integer"/>
+
+                <Button
+                    android:id="@id/button_add_volume"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/button_add_volume"/>
+
+            </LinearLayout>
 
         </LinearLayout>
 
-    </TableRow>
+
 
     <TableRow>
 
@@ -65,45 +86,49 @@
         </LinearLayout>
 
         <LinearLayout
+            android:orientation="vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:padding="@dimen/activity_vertical_margin">
 
             <TextView
-                android:text="@string/volume_dd"
+                android:text="@string/commission_dd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
-            <LinearLayout
+            <EditText
+                android:id="@id/edit_commission"
+                android:inputType="number"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content" />
 
-                <Button
-                    android:id="@id/button_odd_volume"
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="onClickOddVolume"
-                    android:text="@string/button_odd_volume"/>
+            <TextView
+                android:id="@id/text_commission_amount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
-                <EditText
-                    android:id="@id/edit_volume"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:inputType="numberDecimal"
-                    android:numeric="integer"/>
+            <TextView
+                android:id="@id/text_commission_percent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
 
-                <Button
-                    android:id="@id/button_add_volume"
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/button_add_volume"
-                    android:onClick="onClickAddVolume" />
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/activity_vertical_margin">
 
-            </LinearLayout>
+            <TextView
+                android:text="@string/leverage_dd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@id/edit_leverage"
+                android:inputType="numberDecimal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
 
